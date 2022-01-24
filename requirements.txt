@@ -2,9 +2,7 @@ discord
 xlrd
 asyncio
 urllib3
-shutil
+pytest-shutil
 wget
-gc
 pandas
 requests
-json
