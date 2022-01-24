@@ -1,7 +1,7 @@
 discord
 xlrd
 asyncio
-urllib
+urllib3
 shutil
 wget
 gc
