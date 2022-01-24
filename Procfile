@@ -1,0 +1,1 @@
+mainbot: python PremBot.py
