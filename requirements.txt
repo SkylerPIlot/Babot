@@ -1,0 +1,10 @@
+discord
+xlrd
+asyncio
+urllib
+shutil
+wget
+gc
+pandas
+requests
+json
