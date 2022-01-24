@@ -24,22 +24,27 @@ LeqQ = "https://docs.google.com/spreadsheets/d/1cBkjg3X0ss5xeyp6IY4KJcIv63NtVi2y
 
 WhiteList = [294651168880197632,126050231308648457,143818887815888896,353740585154379777,931586337067393067]
 
-dmlistFile = open("dmlist.txt", "r+")
-DMWhiteList = dmlistFile.readlines()
-for i in range(len(DMWhiteList)):
-	DMWhiteList[i] = int(DMWhiteList[i].strip("\n"))
-print(DMWhiteList)
-dmlistFile.close()
+
+DMWhiteList=[807214442017849344,
+353740585154379777,
+391053076846608385,
+143818887815888896,
+436982014256611338,
+294651168880197632,
+667205402693337091,
+534359839376408598,
+854072414854185020,
+349306424041668609,
+391053076846608385,
+266520936621146112,
+221011642996097024,
+199583676999139328,
+100827367324274688,
+122817245872128001]
 
 
-pmlistFile = open("pmlist.txt", "r+")
-PMWhiteList = pmlistFile.readlines()
-for i in range(len(PMWhiteList)):
-	temp = PMWhiteList[i].strip("\n")
-	temp = temp.split(",")
-	PMWhiteList[i] = (int(temp[0]), bool(temp[1]))
+PMWhiteList = [(294651168880197632, True)]
 print(PMWhiteList)
-pmlistFile.close()
 
 client = discord.Client()
 
