@@ -1,15 +1,17 @@
+import os
+
 import discord
-import xlrd
 import asyncio
-import urllib.request
 from urllib.request import urlopen
-import shutil
-import wget
 import gc
 import pandas as pd
 import requests
 import json
+import psycopg2
+import dj_database_url
 
+DATABASE_URL = os.environ.get('DATABASE_URL')
+con = psycopg2.connect(DATABASE_URL)
 
 TaskList = {}
 regTaskList = {}
@@ -175,8 +177,6 @@ async def pm_loop():
 				LBAList.remove(i)
 				await pm_people("LBA Prem Logged out ID: " + i[0])
 
-		
-			
 		try:
 			Temp = pd.read_csv(LeqQ)
 		except:
@@ -572,7 +572,15 @@ async def on_message(message):
 		except:
 			await message.channel.send("Error")
 		await message.channel.send("Notifications turned off for this Channel")
-	
+
+	if message.content == "!api" and message.author.id == 294651168880197632:
+		print("Trying to grab current apikey")
+		try:
+			keysql = f"SELECT api_key FROM discord_verf WHERE disc_id = {essage.author.id}"
+			key = pd.read_sql(keysql, con)
+			await message.channel.send(f"Your api key is = {key}")
+		except:
+			print("error")
 
 	if message.content == "!help" or message.content == "!h":
 		embed = discord.Embed(title="Help on BasBot", description="Some useful commands")

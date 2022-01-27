@@ -1,8 +1,7 @@
 discord
-xlrd
 asyncio
 urllib3
-pytest-shutil
-wget
 pandas
 requests
+psycopg2-binary
+dj-database-url
