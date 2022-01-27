@@ -1,5 +1,6 @@
 import os
-
+from sqlalchemy import create_engine
+from sqlalchemy import text
 import discord
 import asyncio
 from urllib.request import urlopen
@@ -7,11 +8,11 @@ import gc
 import pandas as pd
 import requests
 import json
-import psycopg2
 import dj_database_url
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
-con = psycopg2.connect(DATABASE_URL)
+db = create_engine('postgresql://nxpehlvkqqkzfp:8529c429b7716462403f149cbff5129f54854ab57d02e0bce048f7dda2874f65@ec2-34-206-245-175.compute-1.amazonaws.com:5432/dc0pniuvja0v2q')
+conn = db.connect()
 
 TaskList = {}
 regTaskList = {}
@@ -575,10 +576,14 @@ async def on_message(message):
 
 	if message.content == "!api" and message.author.id == 294651168880197632:
 		print("Trying to grab current apikey")
-
-		keysql = f"SELECT api_key FROM discord_verf WHERE disc_id = {message.author.id}"
-		key = await pd.read_sql(keysql, con)
-		await message.channel.send(f"Your api key is = {key}")
+		try:
+			keysql = f"SELECT api_key FROM discord_verf WHERE disc_id = '{str(message.author.id)}';"
+			key = conn.execute(text(keysql))
+			for final_key in key:
+				perfect_key = str(final_key).strip('\',()')
+				await message.channel.send(f"Your api key is = {perfect_key}")
+		except:
+			await message.channel.send("Error locating your api key, generating new one. If this is your first time gnerating a key don't worry")
 
 
 	if message.content == "!help" or message.content == "!h":
