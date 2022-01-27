@@ -575,12 +575,11 @@ async def on_message(message):
 
 	if message.content == "!api" and message.author.id == 294651168880197632:
 		print("Trying to grab current apikey")
-		try:
-			keysql = f"SELECT api_key FROM discord_verf WHERE disc_id = {essage.author.id}"
-			key = pd.read_sql(keysql, con)
-			await message.channel.send(f"Your api key is = {key}")
-		except:
-			print("error")
+
+		keysql = f"SELECT api_key FROM discord_verf WHERE disc_id = {message.author.id}"
+		key = await pd.read_sql(keysql, con)
+		await message.channel.send(f"Your api key is = {key}")
+
 
 	if message.content == "!help" or message.content == "!h":
 		embed = discord.Embed(title="Help on BasBot", description="Some useful commands")
