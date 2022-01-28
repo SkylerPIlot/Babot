@@ -10,11 +10,15 @@ import requests
 import json
 import secrets
 import string
+import jwt
 import dj_database_url
+import datetime
 
-DATABASE_URL = os.environ.get('DATABASE_URL').replace("://", "ql://", 1)
-db = create_engine(DATABASE_URL)
-conn = db.connect()
+
+jwt_key = 'ex39ELAqkwlMgZGntTfNECn4qmeYmjOZRjDJj2z2lolS4QSsoNBBRqwWFHVI'
+
+
+
 
 TaskList = {}
 regTaskList = {}
@@ -503,49 +507,17 @@ async def on_message(message):
 		return
 
 	if message.content == "!apiGen" and message.guild == None:
-		print(f"checking to see if {message.author.id} has an api key")
-		keysql = f"SELECT COUNT(1) FROM discord_verf WHERE disc_id = '{str(message.author.id)}';"
-		result = conn.execute(text(keysql))
-		results = ''
-		for i in result:
-			results = i['count']
-		if results == 0:
-			await message.channel.send("Error, please run !api first before trying to generate a new key")
 
-		if results == 1:
-			await message.channel.send("Generating new api key")
-			api_key = generate_api(60)
-			keysql = f"UPDATe discord_verf SET api_key ='{api_key}' WHERE disc_id = '{str(message.author.id)}';"
-			conn.execute(text(keysql))
-			await message.channel.send(f"For discord id {message.author.id} your api key is = {api_key}")
+		await message.channel.send("Depreciated, please use !api for a new key")
 		return
 
 	if message.content == "!api" and message.guild == None:
+		await message.channel.send("Here is your api key, it expires in one day from now.")
+		jwt_contents = {'disc_id': str(message.author.id),
+						"exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=86400)}
+		encoded = jwt.encode(jwt_contents, jwt_key, algorithm="HS256")
+		await message.channel.send(encoded)
 
-		print(f"checking to see if {message.author.id} has an api key")
-		keysql = f"SELECT COUNT(1) FROM discord_verf WHERE disc_id = '{str(message.author.id)}';"
-		result = conn.execute(text(keysql))
-		results = ''
-		for i in result:
-			results = i['count']
-		print(results)
-
-
-		if results == 1:
-			print("Trying to grab current apikey")
-			try:
-				keysql = f"SELECT api_key FROM discord_verf WHERE disc_id = '{str(message.author.id)}';"
-				key = conn.execute(text(keysql))
-				for final_key in key:
-					await message.channel.send(f"For discord id {message.author.id} your api key is = {final_key['api_key']}")
-			except:
-				print("Error grabbing apikey from table")
-		if results == 0:
-			await message.channel.send("Error locating your api key, generating new one. If this is your first time generating a key don't worry")
-			api_key = generate_api(60)
-			keysql = f"INSERT INTO discord_verf VALUES('{str(message.author.id)}','{api_key}');"
-			conn.execute(text(keysql))
-			await message.channel.send(f"For discord id {message.author.id} your api key is = {api_key}")
 		return
 
 	if message.guild == None:
