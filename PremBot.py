@@ -1,5 +1,6 @@
 import os
-
+from sqlalchemy import create_engine
+from sqlalchemy import text
 import discord
 import asyncio
 from urllib.request import urlopen
@@ -7,11 +8,13 @@ import gc
 import pandas as pd
 import requests
 import json
-import psycopg2
+import secrets
+import string
 import dj_database_url
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
-con = psycopg2.connect(DATABASE_URL)
+db = create_engine(DATABASE_URL)
+conn = db.connect()
 
 TaskList = {}
 regTaskList = {}
@@ -51,6 +54,11 @@ print(PMWhiteList)
 client = discord.Client()
 
 gc.collect()
+
+
+def generate_api(length):
+	secure_str = ''.join((secrets.choice(string.ascii_letters) for i in range(length)))
+	return secure_str
 
 
 async def retrive_data(id):
@@ -486,15 +494,58 @@ async def on_message(message):
 			name = str(Temp.values[i][3])
 			if status == "Online":
 				await message.channel.send("Customer online ID: " +id + " With a bid of " + bid)
-
-
-
 		print("Done")	
 		return
 			
 
 	if message.author.id not in WhiteList and message.content.startswith('!') and message.guild != None:
 		await message.channel.send("Unauthorized user, contact bot owner for permission to use these commands <a:premsniper:932130618257604698>")
+		return
+
+	if message.content == "!apiGen" and message.guild == None:
+		print(f"checking to see if {message.author.id} has an api key")
+		keysql = f"SELECT COUNT(1) FROM discord_verf WHERE disc_id = '{str(message.author.id)}';"
+		result = conn.execute(text(keysql))
+		results = ''
+		for i in result:
+			results = i['count']
+		if results == 0:
+			await message.channel.send("Error, please run !api first before trying to generate a new key")
+
+		if results == 1:
+			await message.channel.send("Generating new api key")
+			api_key = generate_api(60)
+			keysql = f"UPDATe discord_verf SET api_key ='{api_key}' WHERE disc_id = '{str(message.author.id)}';"
+			conn.execute(text(keysql))
+			await message.channel.send(f"For discord id {message.author.id} your api key is = {api_key}")
+		return
+
+	if message.content == "!api" and message.guild == None:
+
+		print(f"checking to see if {message.author.id} has an api key")
+		keysql = f"SELECT COUNT(1) FROM discord_verf WHERE disc_id = '{str(message.author.id)}';"
+		result = conn.execute(text(keysql))
+		results = ''
+		for i in result:
+			results = i['count']
+		print(results)
+
+
+		if results == 1:
+			print("Trying to grab current apikey")
+			try:
+				keysql = f"SELECT api_key FROM discord_verf WHERE disc_id = '{str(message.author.id)}';"
+				key = conn.execute(text(keysql))
+				for final_key in key:
+					await message.channel.send(f"For discord id {message.author.id} your api key is = {final_key['api_key']}")
+			except:
+				print("Error grabbing apikey from table")
+		if results == 0:
+			await message.channel.send("Error locating your api key, generating new one. If this is your first time generating a key don't worry")
+			api_key = generate_api(60)
+			keysql = f"INSERT INTO discord_verf VALUES('{str(message.author.id)}','{api_key}');"
+			conn.execute(text(keysql))
+			await message.channel.send(f"For discord id {message.author.id} your api key is = {api_key}")
 		return
 
 	if message.guild == None:
@@ -572,13 +623,6 @@ async def on_message(message):
 		except:
 			await message.channel.send("Error")
 		await message.channel.send("Notifications turned off for this Channel")
-
-	if message.content == "!api" and message.author.id == 294651168880197632:
-		print("Trying to grab current apikey")
-
-		keysql = f"SELECT api_key FROM discord_verf WHERE disc_id = {message.author.id}"
-		key = await pd.read_sql(keysql, con)
-		await message.channel.send(f"Your api key is = {key}")
 
 
 	if message.content == "!help" or message.content == "!h":
