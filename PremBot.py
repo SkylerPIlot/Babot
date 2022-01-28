@@ -19,6 +19,7 @@ jwt_key = 'ex39ELAqkwlMgZGntTfNECn4qmeYmjOZRjDJj2z2lolS4QSsoNBBRqwWFHVI'
 
 
 
+
 TaskList = {}
 regTaskList = {}
 nexturl = "http://blairm.net/bas/update_file_75cb4f7e61.php?359e4ae2f3849098858e10975116e9c68736e91b76ee5c40ee755baaefbbe5e5=1"#BAS
@@ -607,4 +608,4 @@ async def on_message(message):
 		#await client.user.edit(username="BA Bot")	
 			
 
-client.run('OTM2NDU5NTI3NDA1MDY4MzE4.YfNf5Q.uVh94QvmuM8YHKHVqyy2uZPEm1M')
+client.run('OTMxNTg2MzM3MDY3MzkzMDY3.YeGlYg.VEtCKbwqmtHJglfZhn2ak6-beeU')
