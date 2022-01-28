@@ -12,7 +12,7 @@ import secrets
 import string
 import dj_database_url
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = os.environ.get('DATABASE_URL').replace("://", "ql://", 1)
 db = create_engine(DATABASE_URL)
 conn = db.connect()
 
