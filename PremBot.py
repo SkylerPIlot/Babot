@@ -415,7 +415,7 @@ async def on_message(message):
 	if message.content == "!api" and message.guild.id == 932423487879004180:
 		await message.channel.send("Here is your api key, check your msgs from the bot")
 		jwt_contents = {'disc_id': str(message.author.id),
-						"exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=86400)}
+						"exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=600)}
 		encoded = jwt.encode(jwt_contents, jwt_key, algorithm="HS256")
 		await pm_person("Here is your api key, it expires in 10 minutes from now.", message.author.id)
 		await pm_person(encoded, message.author.id)
