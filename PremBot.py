@@ -113,8 +113,13 @@ async def pm_people(msg):
 				dm = await user.create_dm()
 			await dm.send(msg)
 				
-
-
+async def pm_person(msg,disc_id):
+	user = await client.fetch_user(disc_id)
+	# print(str(user.dm_channel))
+	dm = user.dm_channel
+	if dm == None:
+		dm = await user.create_dm()
+	await dm.send(msg)
 
 async def pm_loop():
 	premList = []
@@ -405,7 +410,17 @@ async def on_message(message):
 	if message.content == "!pmOn" and message.author.id == 294651168880197632:
 		await message.channel.send("Turned on PMlist")
 		client.loop.create_task(pm_loop())
-		return 
+		return
+
+	if message.content == "!api" and message.guild.id == 932423487879004180:
+		await message.channel.send("Here is your api key, check your msgs from the bot")
+		jwt_contents = {'disc_id': str(message.author.id),
+						"exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=86400)}
+		encoded = jwt.encode(jwt_contents, jwt_key, algorithm="HS256")
+		await pm_person("Here is your api key, it expires in 10 minutes from now.", message.author.id)
+		await pm_person(encoded, message.author.id)
+		return
+
 
 	if  message.content.startswith('!PMusers') and message.author.id == 294651168880197632:
 		msg = message.content.strip("!PMusers")
@@ -504,20 +519,6 @@ async def on_message(message):
 
 	if message.author.id not in WhiteList and message.content.startswith('!') and message.guild != None:
 		await message.channel.send("Unauthorized user, contact bot owner for permission to use these commands <a:premsniper:932130618257604698>")
-		return
-
-	if message.content == "!apiGen" and message.guild == None:
-
-		await message.channel.send("Depreciated, please use !api for a new key")
-		return
-
-	if message.content == "!api" and message.guild == None:
-		await message.channel.send("Here is your api key, it expires in one day from now.")
-		jwt_contents = {'disc_id': str(message.author.id),
-						"exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(seconds=86400)}
-		encoded = jwt.encode(jwt_contents, jwt_key, algorithm="HS256")
-		await message.channel.send(encoded)
-
 		return
 
 	if message.guild == None:
