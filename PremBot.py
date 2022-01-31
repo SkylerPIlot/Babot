@@ -1,6 +1,4 @@
 import os
-from sqlalchemy import create_engine
-from sqlalchemy import text
 import discord
 import asyncio
 from urllib.request import urlopen
@@ -8,16 +6,19 @@ import gc
 import pandas as pd
 import requests
 import json
-import secrets
-import string
+from sqlalchemy import create_engine
+from sqlalchemy import text
 import jwt
-import dj_database_url
+
 import datetime
 
 
 jwt_key = 'ex39ELAqkwlMgZGntTfNECn4qmeYmjOZRjDJj2z2lolS4QSsoNBBRqwWFHVI'
 
-
+DATABASE_URL = os.environ.get('DATABASE_URL').replace("://", "ql://", 1)
+db = create_engine(DATABASE_URL)
+#db = create_engine('postgresql://pmbgclqggryvlc:e48ae104e3ef3fb79213815a6fa596d24b535a11e0bb9768e977a09f7b4b6d89@ec2-34-239-33-57.compute-1.amazonaws.com:5432/dasonl0ovrlp0k')
+conn = db.connect()
 
 
 TaskList = {}
@@ -59,10 +60,114 @@ client = discord.Client()
 
 gc.collect()
 
+async def log_bas():
+	basROn = 0
+	basROff = 0
+	basRProg = 0
+	basPOn = 0
+	basPOff = 0
+	basPProg = 0
+	try:
+		Temp = pd.read_csv(tempQ)
+	except:
+		print("Error retrieving bas q retrying in 10s")
+	for i in range(len(Temp)):
+		type = str(Temp.values[i][2])
+		status = str(Temp.values[i][0])
+		id = str(Temp.values[i][1])
+		nameP = str(Temp.values[i][3])
+		nameR = str(Temp.values[i][4])
 
-def generate_api(length):
-	secure_str = ''.join((secrets.choice(string.ascii_letters) for i in range(length)))
-	return secure_str
+		if status == "Online":
+			if type == "P":
+				basPOn = basPOn + 1
+			if type == "R":
+				basROn = basROn + 1
+			continue
+
+		if status == "In Progress":
+			if type == "P":
+				basPProg = basPProg + 1
+			if type == "R":
+				basRProg = basRProg + 1
+			continue
+
+		if status == "Done":
+			continue
+
+		else:
+			if type == "P":
+				basPOff = basPOff + 1
+			if type == "R":
+				basROff = basROff + 1
+
+	current_utc = datetime.datetime.now(datetime.timezone.utc)
+	time = current_utc.strftime("%m/%d/%y %H:%M:%S")
+	keysql = f"INSERT INTO bas VALUES({basROn},{basROff},{basRProg},{basPOn},{basPOff},{basPProg},'{time}');"
+	conn.execute(text(keysql))
+
+
+async def log_bab():
+
+	babSOn = 0
+	babSOff = 0
+	babSProg = 0
+	babGOn = 0
+	babGOff = 0
+	babGProg = 0
+	babPOn = 0
+	babPOff = -1
+	babPProg = 0
+	try:
+		Temp = pd.read_csv(babQ)
+	except:
+		print("error reading q")
+	for i in range(len(Temp)):
+		type = str(Temp.values[i][1])
+		status = str(Temp.values[i][0])
+		id = str(Temp.values[i][2])
+		name = str(Temp.values[i][3])
+		if status == "Online":
+			if type == "Silver":
+				babSOn = babSOn + 1
+			if type == "Gold":
+				babGOn = babGOn + 1
+			if type == "Platinum":
+				babGOn = babGOn + 1
+
+		if status == "In Progress":
+			if type == "Silver":
+				babSProg = babSProg + 1
+			if type == "Gold":
+				babGProg = babGProg + 1
+			if type == "Platinum":
+				babPProg = babPProg + 1
+
+		if status == "Offline":
+			if type == "Silver":
+				babSOff = babSOff + 1
+			if type == "Gold":
+				babGOff = babGOff + 1
+			if type == "Platinum":
+				babPOff = babPOff + 1
+	current_utc = datetime.datetime.now(datetime.timezone.utc)
+	time = current_utc.strftime("%m/%d/%y %H:%M:%S")
+	keysql = f"INSERT INTO bab VALUES({babSOn},{babSOff},{babSProg},{babGOn},{babGOff},{babGProg},{babPOn},{babPOff},{babPProg},'{time}');"
+	conn.execute(text(keysql))
+
+
+
+async def log_loop():
+	while True:
+		await log_bas()
+		print("Logged time in bas db")
+		await log_bab()
+		print("Logged time in bab db")
+		#async log_lba()
+		#print("Logged time in lba db")
+
+		#await asyncio.sleep(60)#testing
+		await asyncio.sleep(3600)#production
 
 
 async def retrive_data(id):
@@ -400,6 +505,7 @@ async def reg_task(message):
 @client.event
 async def on_ready():
 	print('We have logged in as {0.user}'.format(client))
+	client.loop.create_task(log_loop())
 	
 
 @client.event
