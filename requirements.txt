@@ -1,0 +1,9 @@
+discord
+asyncio
+urllib3
+pandas
+requests
+psycopg2-binary
+dj-database-url
+sqlalchemy
+pyjwt
