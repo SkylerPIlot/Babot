@@ -148,6 +148,7 @@ async def log_bab():
 
 async def log_loop():
     while True:
+        await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Logging Data"))
         await log_bas()
         print("Logged time in bas db")
         await log_bab()
@@ -203,7 +204,7 @@ async def pm_person(msg, disc_id):
 
 async def check_channel(ctx):
     try:
-        if ctx.guild.id == 724744916693024858:
+        if ctx.guild.id == 932423487879004180:
             return True
 
     except:
