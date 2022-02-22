@@ -106,7 +106,7 @@ async def log_bab():
     babGOff = 0
     babGProg = 0
     babPOn = 0
-    babPOff = -1
+    babPOff = 0
     babPProg = 0
     try:
         Temp = pd.read_csv(babQ)
