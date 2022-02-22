@@ -282,6 +282,9 @@ async def on(ctx):
         id = str(Temp.values[i][2])
         name = str(Temp.values[i][3])
         if status == "Online":
+            if type == "Bronze":
+                # await message.channel.send("Premium: " + name + ", ID : " +id)
+                await ctx.send("Bronze: ID: " + id)
             if type == "Silver":
                 # await message.channel.send("Premium: " + name + ", ID : " +id)
                 await ctx.send("Silver: ID: " + id)
